@@ -27,7 +27,7 @@ varlist <- list(
   c("Rent by Income","B25070"),
   c("Enrolled by Graduated by Employment","B14005")
 )
-now()
+
 z<-map(county_geoids,
     ~map2(.x, varlist, function(x,y){
            if(length(y)==2){
@@ -39,17 +39,30 @@ z<-map(county_geoids,
           }
         )
       )
-now()
-#6:04:09
-z %>% 
+
+neighborhood_df_all <- z %>% 
   map(~reduce(.x,bind_rows)) %>% 
-  reduce(bind_rows) %>% distinct(concept)
+  reduce(bind_rows)  %>% 
+  acs_make_neighbors() 
 
+save(neighborhood_df_all, file="./neighborhood_df_all.Rdata")
 
+neighborhood_by_tract <- read_excel("./Neighborhood by Tract.xlsx")
+### filter opp_atlas_outcomes, make "GEOID"
+# opp_atlas_outcomes <- read_csv("./data/tract_outcomes_early.csv")
+# opp_atlas_outcomes %<>% 
+#   mutate(state=str_pad(as.character(state), 2, "left", "0"),
+#          county=str_pad(as.character(county), 3, "left", "0"),
+#          state_county=paste0(state,county)) %>% 
+#   filter(state_county%in%county_geoids) %>% 
+#   mutate(tract=str_pad(as.character(tract), 6, "left", "0")) %>% 
+#   mutate(GEOID=paste0(state,county,tract))
+save(opp_atlas_outcomes, file = "./opp_atlas_outcomes.Rdata")
+df_outs<-opp_atlas_outcomes
 
-acs_make_neighbors <- function(x, type="count"){
-  
-}
+df_outs %>% 
+  select(starts_with("kfr"))
+
 
 
 disconnected_youth <- map(county_geoids,

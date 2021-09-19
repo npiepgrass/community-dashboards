@@ -145,6 +145,25 @@ acs_get_allgeos <- function(concept, var, geo, collapse_sex=T, place=F){
 #########################################################################
 #########################################################################
 
+acs_make_neighbors <- function(x, type="count"){
+  #x is a dataframe with tracts or zips 
+  # if(!exists(neighborhood_by_tract)) stop("dataframe named neighborhood_by_tract is missing")
+  
+  if(type == "count" & "GEOID" %in% names(x)){
+    x %<>% 
+      left_join(neighborhood_by_tract) %>% 
+      mutate(NAME=str_remove(NAME, ".*?[0123456789], ")) %>% 
+      group_by(across(-c(GEOID,estimate, moe))) %>% 
+      summarise(estimate=sum(estimate, na.rm = T),
+                moe=sum(moe, na.rm=T)) %>% 
+      ungroup()
+  }
+  x
+}
+
+#########################################################################
+#########################################################################
+
 county_geoids <- list("21111", "21029", "21185", "21211", 
                       "18019", "18043", "18061")
 
