@@ -1,0 +1,79 @@
+---
+title: "Resources"
+output: flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(crosstalk)
+library(sf)
+library(leaflet)
+library(plotly)
+library(DT)
+
+load("./data for markdowns/landuse.Rdata")
+load("./data for markdowns/resources.Rdata")
+
+
+sd <- SharedData$new(df)
+```
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+leaflet() %>% 
+  addTiles() %>% 
+  # addProviderTiles(providers$Stamen.TonerLite, group = "Toner Lite") %>%
+  setView(-85.69862149086866,38.219788941608726,  zoom = 10.6) %>%
+  addPolygons(data =filter(landuse_summed,
+                           landuse_na=="INDUSTRY"),
+              color = "black", 
+              opacity = 1,
+              fillColor = c("#bf6e3f"), 
+              fillOpacity = .8,
+              weight = .1,
+              group = "Industry") %>% 
+    addPolygons(data =filter(landuse_summed,
+                           landuse_na=="PARKS AND OPEN SPACE"),
+              color = "black", 
+              opacity = 1,
+              fillColor = c("#2e803a"), 
+              fillOpacity = .8,
+              weight = .1, 
+              group = "Parks and Open Space") %>%
+  addPolygons(data=sd,
+              color = "black", 
+              fill = NA, 
+              weight = 3) %>% 
+  addLayersControl(
+    baseGroups = c("Industry", "Parks and Open Space"),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+```
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+# sd
+plot_ly(data=sd) %>% 
+  add_trace(x=~poverty_rate, y=~area_ratio_Industry, 
+            type="scatter", mode='markers') %>% 
+  add_trace(x=~poverty_rate, y=~`area_ratio_Parks And Open Space`, 
+            type="scatter", mode='markers')
+
+```
+
+### Chart C
+
+```{r}
+sd %>% 
+  datatable()
+```
+
+

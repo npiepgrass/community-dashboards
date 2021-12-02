@@ -1,0 +1,67 @@
+---
+title: 
+output:
+ revealjs::revealjs_presentation:
+   theme:
+   css: custom.css
+   transition: slide
+   data_transition: slide
+   background_transition: slide
+   slide_level: 2
+   reveal_options:
+     mouseWheel: true
+     minScale: 1.0
+     maxScale: 1.0
+     disableLayout: true
+
+---
+
+# {data-background=#005191 .dark-bg}
+<img src="https://nyc3.digitaloceanspaces.com/metrounitedway/app/uploads/2021/06/Service_Area_Map_with-Background-1024x900.png" style="width:400px;height:400px;border:0;">
+<p style="font-size:130%">
+The measure of a community’s success doesn’t lie in those who already have opportunities to thrive, but in those still fighting for them.
+</p>
+
+## {.lite-bg}
+<p style="font-size:110%;">Where a child grows up affects how much they will earn.</p>
+<div style="display:grid; grid-template-columns: 65% 35%; grid-row-gap: 10px; align-self:start; ">
+<div class="column-left">
+```{r,echo=FALSE, out.width="100%", message=FALSE, warning=FALSE}
+load("./plots/overall.Rdata")
+overall
+```
+</div>
+<div class = "column-right">
+<big>$12k</big>
+<p>On average, a child growing up in a neighborhood where 96% of individuals are above the federal poverty level would have $12,042 more in household income compared with the average child from a neighborhood with 86% of individuals above the federal poverty level</p>
+<big>16x</big>
+<p>Black children are 16 times as likely as white children to grow up in a neighborhood with 90% of individuals above the federal poverty level</p>
+</div>
+</div>
+
+## RESOURCES MATTER {data-background=#005191 .dark-bg}
+<div style="display:grid; grid-template-columns: 65% 35%; grid-row-gap: 10px; align-self:start; ">
+<div class="column-left">
+```{r,echo=FALSE, out.width="100%",message=FALSE, warning=FALSE}
+
+
+```
+</div>
+<div class = "column-right">
+</div>
+</div>
+
+## PRIORITY NEIGHBORHOOD: CALIFORNIA {.lite-bg}
+
+
+## WEALTH {data-background=#005191 .dark-bg}
+
+## EDUCATION {.lite-bg}
+
+
+
+
+
+
+
+

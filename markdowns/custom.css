@@ -1,0 +1,17 @@
+.dark-bg {
+  color: white !important;
+  font-family:TradeGothic,Helvetica,Arial,sans-serif;
+  font-weight:500 !important;
+  }
+.lite-bg {
+  color: #005191 !important;
+  font-family:TradeGothic,Helvetica,Arial,sans-serif;
+  font-weight:500 !important;
+  }
+.reveal big {
+  font-size: 400%;
+  }
+.reveal p {
+  font-size: 45%;
+  }
+    

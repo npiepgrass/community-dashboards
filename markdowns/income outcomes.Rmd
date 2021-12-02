@@ -1,0 +1,61 @@
+---
+title: "Income Outcomes"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+---
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+library(plotly)
+library(tidyverse)
+```
+
+Row {.tabset}
+-----------------------------------------------------------------------
+
+### Income at Age 35
+
+```{r,echo=FALSE, out.width="100%", message=FALSE, warning=FALSE}
+load("./plots/overall.Rdata")
+overall_trend
+```
+
+### Income by Race 
+
+```{r,echo=FALSE, out.width="100%", message=FALSE, warning=FALSE}
+load("./plots/outcomes_race.Rdata")
+outcomes_race
+```
+
+### Income by Parents' Income 
+
+```{r,echo=FALSE, out.width="100%", message=FALSE, warning=FALSE}
+load("./plots/outcomes_parents.Rdata")
+outcomes_parents
+```
+
+Row 
+-----------------------------------------------------------------------
+ 
+
+### Number of Children By Percent of Tract Above Poverty Level {data-width=500}
+
+```{r}
+ggplotly(ggplot()+geom_histogram(aes(x=rnorm(100))))
+```
+
+
+### Notes {data-width=250}
+
+This analysis uses data from OpportunityInsights.org. 
+
+* The data set links children who were graduating high school before the 2000 US Census to the tract they grew up in and their income at age 35. 
+* Data on the federal poverty level reflects overall rate in the tract when these children were school-aged, not the poverty status of the children themselves.
+* Explore this data at www.opportunityatlas.org
+
+
+
+

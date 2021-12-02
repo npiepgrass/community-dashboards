@@ -1,0 +1,220 @@
+---
+title: "Opportunity Index"
+output: 
+  flexdashboard::flex_dashboard
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(crosstalk)
+library(sf)
+library(leaflet)
+library(plotly)
+library(DT)
+library(tidyverse)
+
+load("./data for markdowns/opp_ind_sf.Rdata")
+# load("./data for markdowns/resources.Rdata")
+
+bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+pal <- colorBin("RdYlBu", domain = opp_ind_sf$r_COI_met, bins = bins)
+
+# sd <- SharedData$new(opp_ind_sf)
+```
+
+Child Opportunity Index
+=======================================================================
+
+Column {data-width=600}
+-----------------------------------------------------------------------
+
+### {}
+
+```{r}
+
+bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
+pal <- colorBin("RdYlBu", domain = opp_ind_sf$r_COI_met, bins = bins)
+pal_ed <- colorBin("RdYlBu", domain = opp_ind_sf$r_ED_met, bins = bins)
+pal_se <- colorBin("PiYG", domain = opp_ind_sf$r_SE_met, bins = bins)
+pal_he <- colorBin("BrBG", domain = opp_ind_sf$r_HE_met, bins = bins)
+pal_coi <- colorBin("RdBu", domain = opp_ind_sf$r_COI_met, bins = bins)
+
+labels_COI <- sprintf(
+  "<strong>%s</strong><br/>%s, %s County<br/><strong>Child Opportunity: %g/100</strong>",
+  opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_COI_met
+) %>% lapply(htmltools::HTML)
+labels_ED <- sprintf(
+  "<strong>%s</strong><br/>%s, %s County<br/><strong>Education: %g/100</strong>",
+  opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_ED_met
+) %>% lapply(htmltools::HTML)
+labels_SE <- sprintf(
+  "<strong>%s</strong><br/>%s, %s County<br/><strong>Social and Economic: %g/100</strong>",
+  opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_SE_met
+) %>% lapply(htmltools::HTML)
+labels_HE <- sprintf(
+  "<strong>%s</strong><br/>%s, %s County<br/><strong>Health and Environment: %g/100</strong>",
+  opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_HE_met
+) %>% lapply(htmltools::HTML)
+
+leaflet() %>% 
+  addTiles(group = "Basemap") %>%
+  addPolygons(data=opp_ind_sf,
+              color = NA, 
+              fillColor = ~pal(r_COI_met), 
+              fillOpacity = .7,
+              group = "Opportunity Index (Overall)",
+              label = labels_COI,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "13px",
+                direction = "auto")) %>% 
+  addPolygons(data=opp_ind_sf,
+              color = NA, 
+              fillColor = ~pal(r_ED_met), 
+              fillOpacity = .7,
+              group = "Education Index",
+              label = labels_ED,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "13px",
+                direction = "auto")) %>% 
+  addPolygons(data=opp_ind_sf,
+              color = NA, 
+              fillColor = ~pal(r_SE_met), 
+              fillOpacity = .7,
+              group = "Social and Economic Index",
+              label = labels_SE,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "13px",
+                direction = "auto")) %>% 
+  addPolygons(data=opp_ind_sf,
+              color = NA, 
+              fillColor = ~pal(r_HE_met), 
+              fillOpacity = .7,
+              group = "Health and Environment Index",
+              label = labels_HE,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "13px",
+                direction = "auto")) %>% 
+  addPolygons(data=neighbortract_sf,
+              color = "black", 
+              fill = NA, 
+              weight = 1,
+              opacity = 1,
+              group = "Neighborhood Outlines") %>% 
+  addPolygons(data=county_sf,
+              color = "black", 
+              fill = NA, 
+              weight = 2.5,
+              opacity = 1,
+              group = "County Outlines") %>% 
+  addLayersControl(
+    baseGroups = c("Opportunity Index (Overall)","Education Index",
+                   "Social and Economic Index", "Health and Environment Index"),
+    overlayGroups = c("Basemap", "Neighborhood Outlines","County Outlines"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  addLegend(pal = pal, values = opp_ind_sf$r_COI_met,
+            opacity = 0.7, title = NULL,
+            position = "bottomright")
+
+```
+
+Column {data-width=400}
+-----------------------------------------------------------------------
+
+### {}
+
+```{r}
+plot_ly(data = opp_ind_sf, type = "scatter", mode = "markers") %>% 
+  add_trace(x = ~r_HE_met, 
+            y = ~r_SE_met,
+            text=opp_ind_sf$subneighbor, 
+            name="Census Tract",
+            marker=list(color='#005191'), 
+            hovertemplate="%{text}")%>% 
+  layout(legend = list(x = 0.1, y = 0.95),
+         xaxis = list(title = 'Health and Environment Index'), 
+         yaxis = list(title = 'Social and Economic Index')) %>% 
+  plotly_build()
+```
+
+### {}
+
+```{r}
+plot_ly(data = opp_ind_sf, type = "scatter", mode = "markers") %>% 
+  add_trace(x = ~r_ED_met, 
+            y = ~r_HE_met,
+            text=opp_ind_sf$subneighbor, 
+            name="Census Tract",
+            marker=list(color='#005191'), 
+            hovertemplate="%{text}")%>% 
+  layout(legend = list(x = 0.1, y = 0.95),
+         xaxis = list(title = "Education Index"), 
+         yaxis = list(title = 'Health and Environment Index'))%>% 
+  plotly_build()
+```
+
+### {}
+
+```{r}
+plot_ly(data = opp_ind_sf, type = "scatter", mode = "markers") %>% 
+  add_trace(x = ~r_SE_met, 
+            y = ~r_ED_met,
+            text=opp_ind_sf$subneighbor, 
+            name="Census Tract",
+            marker=list(color='#005191'), 
+            hovertemplate="%{text}")%>% 
+  layout(legend = list(x = 0.1, y = 0.95),
+         xaxis = list(title = "Social and Economic Index"), 
+         yaxis = list(title = 'Education Index'))%>% 
+  plotly_build()
+
+```
+
+Rankings
+=======================================================================
+
+The following presents the range in values between tracts for each index and neighborhood.
+
+Almost all of the large ranges are from suburban Jefferson County, often representing cities with multiple neighborhoods, or small towns that have been combined to create a neighborhood.
+
+Once the data is aggregated, This section will contain a ranking dashboard.
+
+### Histograms
+
+```{r}
+ggplotly(
+opp_ind %>% 
+  filter(year==2015) %>% 
+  select(geoid, (starts_with("r")&ends_with("met"))) %>% 
+  left_join(neighborhood_by_tract) %>% 
+  filter(county_fips %in% county_geoids) %>% 
+  pivot_longer(cols = starts_with("r_")) %>%
+  group_by(state, county, neighbor, subneighbor, name) %>%
+  mutate(range=max(value)-min(value)) %>%
+  ungroup() %>% 
+  ggplot()+
+  geom_histogram(aes(x=range), binwidth = 1) +
+  facet_wrap(~name, nrow=1)
+)
+```
+
+### Table
+
+```{r}
+opp_ind %>% 
+  filter(year==2015) %>% 
+  select(geoid, (starts_with("r")&ends_with("met"))) %>% 
+  left_join(neighborhood_by_tract) %>% 
+  filter(county_fips %in% county_geoids) %>% 
+  pivot_longer(cols = starts_with("r_")) %>%
+  group_by(state, county, neighbor, subneighbor, name) %>%
+  mutate(range=max(value)-min(value)) %>%
+  ungroup() %>% 
+  arrange(desc(range)) %>% 
+  datatable()
+
+```
