@@ -69,7 +69,7 @@ pal_he <- colorBin("BrBG", domain = sd$r_HE_met, bins = bins)
 pal_coi <- colorBin("RdBu", domain = sd$r_COI_met, bins = bins)
 
 labels_COI <- sprintf(
-  "<img src = 'https://github.com/npiepgrsds/community-dashboards/blob/main/markdowns/plots/mapminis/%s.png?raw=true' width = 150><br/><strong>%s</strong><br/>%s, %s County<br/><strong>Child Opportunity: %g/100</strong>",
+  "<img src = 'https://github.com/npiepgrass/community-dashboards/blob/main/markdowns/plots/mapminis/%s.png?raw=true' width = 300><br/><strong>%s</strong><br/>%s, %s County<br/><strong>Child Opportunity: %g/100</strong>",
   opp_ind_sf$geoid,opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_COI_met
 ) %>% lapply(htmltools::HTML)
 labels_ED <- sprintf(
