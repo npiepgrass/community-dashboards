@@ -16,14 +16,43 @@ library(tidyverse)
 load("./data for markdowns/opp_ind_sf.Rdata")
 # load("./data for markdowns/resources.Rdata")
 
+sd <- SharedData$new(as_Spatial(opp_ind_sf))
+sd_df <- SharedData$new(
+  as.data.frame(as_Spatial(opp_ind_sf)@data),group = sd$groupName())
 bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
-pal <- colorBin("RdYlBu", domain = opp_ind_sf$r_COI_met, bins = bins)
+pal <- colorBin("RdYlBu", domain = sd$r_COI_met, bins = bins)
 
-# sd <- SharedData$new(opp_ind_sf)
 ```
+
+
 
 Child Opportunity Index
 =======================================================================
+
+<!-- Inputs {.sidebar} -->
+<!-- ----------------------------------------------------------------------- -->
+
+<!-- ```{r} -->
+<!-- filter_slider( -->
+<!--   id = "pct_child_under_fpl",  -->
+<!--   label = "Percent of Children in Poverty",  -->
+<!--   sharedData = sd_df, -->
+<!--   column = ~pct_child_under_fpl) -->
+
+<!-- filter_slider( -->
+<!--   "pct_nonwhite",  -->
+<!--   "Percent of Children who are Non-white",  -->
+<!--   sharedData = sd_df, -->
+<!--   column = ~pct_nonwhite) -->
+
+<!-- filter_slider( -->
+<!--   "pct_under_18",  -->
+<!--   "Percent of Population Under 18",  -->
+<!--   sharedData = sd_df,  -->
+<!--   column = ~pct_under_18) -->
+<!-- ``` -->
+
+<!-- --- -->
 
 Column {data-width=600}
 -----------------------------------------------------------------------
@@ -33,15 +62,15 @@ Column {data-width=600}
 ```{r}
 
 bins <- c(0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100)
-pal <- colorBin("RdYlBu", domain = opp_ind_sf$r_COI_met, bins = bins)
-pal_ed <- colorBin("RdYlBu", domain = opp_ind_sf$r_ED_met, bins = bins)
-pal_se <- colorBin("PiYG", domain = opp_ind_sf$r_SE_met, bins = bins)
-pal_he <- colorBin("BrBG", domain = opp_ind_sf$r_HE_met, bins = bins)
-pal_coi <- colorBin("RdBu", domain = opp_ind_sf$r_COI_met, bins = bins)
+pal <- colorBin("RdYlBu", domain = sd$r_COI_met, bins = bins)
+pal_ed <- colorBin("RdYlBu", domain = sd$r_ED_met, bins = bins)
+pal_se <- colorBin("PiYG", domain = sd$r_SE_met, bins = bins)
+pal_he <- colorBin("BrBG", domain = sd$r_HE_met, bins = bins)
+pal_coi <- colorBin("RdBu", domain = sd$r_COI_met, bins = bins)
 
 labels_COI <- sprintf(
-  "<strong>%s</strong><br/>%s, %s County<br/><strong>Child Opportunity: %g/100</strong>",
-  opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_COI_met
+  "<img src = 'https://github.com/npiepgrsds/community-dashboards/blob/main/markdowns/plots/mapminis/%s.png?raw=true' width = 150><br/><strong>%s</strong><br/>%s, %s County<br/><strong>Child Opportunity: %g/100</strong>",
+  opp_ind_sf$geoid,opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_COI_met
 ) %>% lapply(htmltools::HTML)
 labels_ED <- sprintf(
   "<strong>%s</strong><br/>%s, %s County<br/><strong>Education: %g/100</strong>",
@@ -56,9 +85,10 @@ labels_HE <- sprintf(
   opp_ind_sf$subneighbor, opp_ind_sf$neighbor, opp_ind_sf$county, opp_ind_sf$r_HE_met
 ) %>% lapply(htmltools::HTML)
 
+
 leaflet() %>% 
   addTiles(group = "Basemap") %>%
-  addPolygons(data=opp_ind_sf,
+  addPolygons(data=sd,
               color = NA, 
               fillColor = ~pal(r_COI_met), 
               fillOpacity = .7,
@@ -68,43 +98,43 @@ leaflet() %>%
                 style = list("font-weight" = "normal", padding = "3px 8px"),
                 textsize = "13px",
                 direction = "auto")) %>% 
-  addPolygons(data=opp_ind_sf,
-              color = NA, 
-              fillColor = ~pal(r_ED_met), 
+  addPolygons(data=sd,
+              color = NA,
+              fillColor = ~pal(r_ED_met),
               fillOpacity = .7,
               group = "Education Index",
               label = labels_ED,
               labelOptions = labelOptions(
                 style = list("font-weight" = "normal", padding = "3px 8px"),
                 textsize = "13px",
-                direction = "auto")) %>% 
-  addPolygons(data=opp_ind_sf,
-              color = NA, 
-              fillColor = ~pal(r_SE_met), 
+                direction = "auto")) %>%
+  addPolygons(data=sd,
+              color = NA,
+              fillColor = ~pal(r_SE_met),
               fillOpacity = .7,
               group = "Social and Economic Index",
               label = labels_SE,
               labelOptions = labelOptions(
                 style = list("font-weight" = "normal", padding = "3px 8px"),
                 textsize = "13px",
-                direction = "auto")) %>% 
-  addPolygons(data=opp_ind_sf,
-              color = NA, 
-              fillColor = ~pal(r_HE_met), 
+                direction = "auto")) %>%
+  addPolygons(data=sd,
+              color = NA,
+              fillColor = ~pal(r_HE_met),
               fillOpacity = .7,
               group = "Health and Environment Index",
               label = labels_HE,
               labelOptions = labelOptions(
                 style = list("font-weight" = "normal", padding = "3px 8px"),
                 textsize = "13px",
-                direction = "auto")) %>% 
-  addPolygons(data=neighbortract_sf,
+                direction = "auto")) %>%
+  addPolygons(data=sd,
               color = "black", 
               fill = NA, 
               weight = 1,
               opacity = 1,
               group = "Neighborhood Outlines") %>% 
-  addPolygons(data=county_sf,
+  addPolygons(data=sd,
               color = "black", 
               fill = NA, 
               weight = 2.5,
@@ -116,60 +146,147 @@ leaflet() %>%
     overlayGroups = c("Basemap", "Neighborhood Outlines","County Outlines"),
     options = layersControlOptions(collapsed = FALSE)
   ) %>%
-  addLegend(pal = pal, values = opp_ind_sf$r_COI_met,
+  addLegend(pal = pal, values = sd$r_COI_met,
             opacity = 0.7, title = NULL,
             position = "bottomright")
 
 ```
 
-Column {data-width=400}
+Column {data-width=300; .tabset}
 -----------------------------------------------------------------------
 
-### {}
+### Poverty
 
 ```{r}
-plot_ly(data = opp_ind_sf, type = "scatter", mode = "markers") %>% 
-  add_trace(x = ~r_HE_met, 
-            y = ~r_SE_met,
-            text=opp_ind_sf$subneighbor, 
+fpl_se <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_child_under_fpl,
+            x = ~r_SE_met,
+            text=sd_df$subneighbor,
             name="Census Tract",
-            marker=list(color='#005191'), 
-            hovertemplate="%{text}")%>% 
-  layout(legend = list(x = 0.1, y = 0.95),
-         xaxis = list(title = 'Health and Environment Index'), 
-         yaxis = list(title = 'Social and Economic Index')) %>% 
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Children under Federal Poverty Level'),
+         xaxis = list(title = 'Social and Economic Index'))
+
+fpl_ed <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_child_under_fpl,
+            x = ~r_ED_met,
+            text=sd_df$subneighbor,
+            name="Census Tract",
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Children under Federal Poverty Level'),
+         xaxis = list(title = 'Education Index'))
+
+fpl_he <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_child_under_fpl,
+            x = ~r_HE_met,
+            text=sd_df$subneighbor,
+            name="Census Tract",
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Children under Federal Poverty Level'),
+         xaxis = list(title = 'Health and Invironment Index'))
+
+subplot(fpl_se, fpl_ed,fpl_he, nrows = 3)%>%
+  layout(showlegend = FALSE,
+         xaxis = list(
+           zerolinecolor = '#ffff'
+           )
+         ) %>%
   plotly_build()
 ```
 
-### {}
+### Race
 
 ```{r}
-plot_ly(data = opp_ind_sf, type = "scatter", mode = "markers") %>% 
-  add_trace(x = ~r_ED_met, 
-            y = ~r_HE_met,
-            text=opp_ind_sf$subneighbor, 
+race_se <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_nonwhite,
+            x = ~r_SE_met,
+            text=sd_df$subneighbor,
             name="Census Tract",
-            marker=list(color='#005191'), 
-            hovertemplate="%{text}")%>% 
-  layout(legend = list(x = 0.1, y = 0.95),
-         xaxis = list(title = "Education Index"), 
-         yaxis = list(title = 'Health and Environment Index'))%>% 
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Children who are Non-white'),
+         xaxis = list(title = 'Social and Economic Index'))
+
+race_ed <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_nonwhite,
+            x = ~r_ED_met,
+            text=sd_df$subneighbor,
+            name="Census Tract",
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Children who are Non-white'),
+         xaxis = list(title = 'Education Index'))
+
+race_he <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_nonwhite,
+            x = ~r_HE_met,
+            text=sd_df$subneighbor,
+            name="Census Tract",
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Children who are Non-white'),
+         xaxis = list(title = 'Health and Invironment Index'))
+
+subplot(race_se, race_ed, race_he, nrows = 3)%>%
+  layout(showlegend = FALSE,
+         xaxis = list(
+           zerolinecolor = '#ffff'
+           )
+         ) %>%
   plotly_build()
 ```
 
-### {}
+### Aged 0-17
 
 ```{r}
-plot_ly(data = opp_ind_sf, type = "scatter", mode = "markers") %>% 
-  add_trace(x = ~r_SE_met, 
-            y = ~r_ED_met,
-            text=opp_ind_sf$subneighbor, 
+ch_se <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_under_18,
+            x = ~r_SE_met,
+            text=sd_df$subneighbor,
             name="Census Tract",
-            marker=list(color='#005191'), 
-            hovertemplate="%{text}")%>% 
-  layout(legend = list(x = 0.1, y = 0.95),
-         xaxis = list(title = "Social and Economic Index"), 
-         yaxis = list(title = 'Education Index'))%>% 
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Population Under 18'),
+         xaxis = list(title = 'Social and Economic Index'))
+
+ch_ed <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_under_18,
+            x = ~r_ED_met,
+            text=sd_df$subneighbor,
+            name="Census Tract",
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Population Under 18'),
+         xaxis = list(title = 'Education Index'))
+
+ch_he <- plot_ly(data = sd_df, type = "scatter", mode = "markers") %>%
+  add_trace(y = ~pct_under_18,
+            x = ~r_HE_met,
+            text=sd_df$subneighbor,
+            name="Census Tract",
+            marker=list(color='#005191'),
+            hovertemplate="%{text}")%>%
+  layout(showlegend = FALSE,
+         yaxis = list(title = 'Percent of Population Under 18'),
+         xaxis = list(title = 'Health and Invironment Index'))
+
+subplot(ch_se, ch_ed, ch_he, nrows = 3)%>%
+  layout(xaxis = list(
+           zerolinecolor = '#ffff'
+           ),
+         showlegend = FALSE
+         ) %>%
   plotly_build()
 
 ```
